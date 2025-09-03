@@ -2,50 +2,34 @@ name: Update Ralph Lauren sitemap URLs
 
 on:
   schedule:
-    # Run every day at 07:30 UTC. Adjust as needed.
     - cron: '30 7 * * *'
-  # Allow manual triggering of this workflow
-  workflow_dispatch:
+     workflow_dispatch:
 
-# Grant write access to the GITHUB_TOKEN so this workflow can push
-# back to the repository. Without this permission, attempts to
-# commit changes will fail with a 403 error.
+
 permissions:
   contents: write
 
 jobs:
   update-urls:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          # Persist credentials so the action can push back to the repo
           persist-credentials: true
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          python-version: '3.x'
-
+          node-version: '18'
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
-
+        run: npm install
       - name: Fetch new URLs
-        run: |
-          python fetch_new_urls.py
-
+        run: node fetch_new_urls.js
       - name: Commit and push changes
         run: |
-          # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Add any changes (new URLs or updated archive)
           git add -A
-          # If there are changes, commit them
           if [ -n "$(git status --porcelain)" ]; then
             git commit -m "chore: update URLs on $(date -u '+%Y-%m-%d')"
             git push
