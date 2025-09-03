@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+/#!/usr/bin/env python
 """
 Script to fetch new URLs from Ralph Lauren sitemaps.
 
@@ -132,7 +132,7 @@ def main() -> int:
         Zero on success, non-zero on failure.
     """
     # URL of the sitemap index. Use this to discover individual sitemap files.
-    # Ralph Lauren exposes its primary sitemap index at `/index` rather than
+    # Ralph\u00a0Lauren exposes its primary sitemap index at `/index` rather than
     # `/sitemap.xml`【336331664324739†L68-L87】. If this URL is unreachable, the
     # fallback list below is used.
     sitemap_index_url = "https://www.ralphlauren.com/index"
@@ -222,7 +222,13 @@ def main() -> int:
     # represents the pre‑existing URLs in the archive at the moment of
     # execution. The number of new URLs plus the number of existing URLs
     # should equal the total number of URLs discovered in this run.
-    existing_urls_count = len(previous_urls)
+    # Compute how many URLs were already present in the sitemap at this run.
+    # Instead of using the number of URLs previously archived (which would be
+    # zero on the first run), we calculate the number of pre‑existing URLs as
+    # the difference between the total URLs discovered in this run and the
+    # number of new URLs. This ensures that on the first run the script
+    # correctly reports the baseline number of URLs present in the sitemap.
+    existing_urls_count = len(current_urls) - len(new_urls)
     run_entry = {
         "date": date_str,
         # Use ISO 8601 format with 'Z' to indicate UTC time
