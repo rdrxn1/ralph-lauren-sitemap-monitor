@@ -1,0 +1,13 @@
+{
+  "name": "ralph-lauren-sitemap-monitor",
+  "version": "1.0.0",
+  "description": "Fetch new URLs from Ralph Lauren sitemaps using Puppeteer",
+  "main": "fetch_new_urls.js",
+  "scripts": {
+    "start": "node fetch_new_urls.js"
+  },
+  "dependencies": {
+    "puppeteer-extra": "^4.2.1",
+    "puppeteer-extra-plugin-stealth": "^2.11.0"
+  }
+}
