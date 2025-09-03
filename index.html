@@ -93,7 +93,12 @@
             dateStyle: 'medium',
             timeStyle: 'short'
           });
-          container.textContent = `Last run: ${formatted} | New URLs: ${last.new_urls_count} | Total URLs: ${last.total_urls_count}`;
+          // Include pre‑existing URL count in the summary. "existing_urls_count"
+          // represents the number of URLs already known prior to this run. The
+          // sum of new and existing counts should equal the total URLs
+          // discovered. Display all three values to give a clearer picture
+          // of the sitemap contents.
+          container.textContent = `Last run: ${formatted} | New URLs: ${last.new_urls_count} | Pre‑existing URLs: ${last.existing_urls_count} | Total URLs: ${last.total_urls_count}`;
         } catch (err) {
           container.textContent = err.message;
         }
