@@ -98,7 +98,8 @@
           // sum of new and existing counts should equal the total URLs
           // discovered. Display all three values to give a clearer picture
           // of the sitemap contents.
-          container.textContent = `Last run: ${formatted} | New URLs: ${last.new_urls_count} | Pre‑existing URLs: ${last.existing_urls_count} | Total URLs: ${last.total_urls_count}`;
+         const preExisting = (last.existing_urls_count !== undefined) ? last.existing_urls_count : (last.total_urls_count - last.new_urls_count);
+      container.textContent = `Last run: ${formatted} | New URLs: ${last.new_urls_count} | Pre-existing URLs: ${preExisting} | Total URLs: ${last.total_urls_count}`;
         } catch (err) {
           container.textContent = err.message;
         }
