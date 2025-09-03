@@ -38,9 +38,12 @@
   </head>
   <body>
     <h1>Daily New URLs</h1>
+    <!-- Summary information about the most recent run will appear here -->
+    <div id="log-summary" style="margin-bottom:1rem; font-size:0.95rem; color:#555;"></div>
     <div id="status">Loading…</div>
     <ul id="url-list"></ul>
     <script>
+      // Fetch and display the list of newly discovered URLs
       async function loadUrls() {
         try {
           const response = await fetch('latest_new_urls.txt');
@@ -49,13 +52,13 @@
           }
           const text = await response.text();
           const urls = text.trim().split(/\r?\n/).filter(Boolean);
-          const status = document.getElementById('status');
-          const list = document.getElementById('url-list');
+          const statusEl = document.getElementById('status');
+          const listEl = document.getElementById('url-list');
           if (urls.length === 0) {
-            status.textContent = 'No new URLs recorded for the most recent run.';
+            statusEl.textContent = 'No new URLs recorded for the most recent run.';
             return;
           }
-          status.textContent = 'New URLs from the most recent run:';
+          statusEl.textContent = 'New URLs from the most recent run:';
           urls.forEach((url) => {
             const li = document.createElement('li');
             const a = document.createElement('a');
@@ -63,12 +66,41 @@
             a.textContent = url;
             a.target = '_blank';
             li.appendChild(a);
-            list.appendChild(li);
+            listEl.appendChild(li);
           });
         } catch (err) {
           document.getElementById('status').textContent = err.message;
         }
       }
+
+      // Fetch and display run log information
+      async function loadRunLog() {
+        const container = document.getElementById('log-summary');
+        try {
+          const response = await fetch('run_log.json');
+          if (!response.ok) {
+            throw new Error('Could not fetch run_log.json');
+          }
+          const log = await response.json();
+          if (!Array.isArray(log) || log.length === 0) {
+            container.textContent = 'No run information available yet.';
+            return;
+          }
+          // Assume the log is sorted with most recent first
+          const last = log[0];
+          const lastRunDate = new Date(last.timestamp);
+          const formatted = lastRunDate.toLocaleString(undefined, {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+          });
+          container.textContent = `Last run: ${formatted} | New URLs: ${last.new_urls_count} | Total URLs: ${last.total_urls_count}`;
+        } catch (err) {
+          container.textContent = err.message;
+        }
+      }
+
+      // Initialise both loaders on page load
+      loadRunLog();
       loadUrls();
     </script>
   </body>
