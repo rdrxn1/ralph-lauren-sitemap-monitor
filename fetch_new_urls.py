@@ -199,6 +199,54 @@ def main() -> int:
         print(f"Updated archive file '{archive_file}'.")
     else:
         print(f"No updates to '{archive_file}'.")
+
+    # ----------------------------------------------------------------------
+    # Persist run metadata for reporting
+    #
+    # To provide a simple log of when the script last ran and how many URLs
+    # were discovered, we maintain a JSON file (run_log.json). Each entry
+    # records the date of the run, a precise timestamp (UTC), the count of
+    # new URLs discovered, and the total number of unique URLs seen across
+    # all sitemaps for that run. When the script runs again on the same date,
+    # the existing entry for that date is replaced. Otherwise, a new entry
+    # is appended to the log. The resulting JSON array is written back
+    # with indentation for readability.
+    import json
+    log_filename = "run_log.json"
+    run_entry = {
+        "date": date_str,
+        # Use ISO 8601 format with 'Z' to indicate UTC time
+        "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "new_urls_count": len(new_urls),
+        "total_urls_count": len(current_urls),
+    }
+    run_history = []
+    if os.path.exists(log_filename):
+        try:
+            with open(log_filename, "r", encoding="utf-8") as jf:
+                data = json.load(jf)
+            # Ensure we have a list
+            if isinstance(data, list):
+                run_history = data
+        except Exception as exc:
+            print(f"Warning: Failed to read existing run log: {exc}", file=sys.stderr)
+            run_history = []
+    # Remove any existing entry for the same date
+    run_history = [entry for entry in run_history if entry.get("date") != date_str]
+    # Append the new entry
+    run_history.append(run_entry)
+    # Sort by date descending (most recent first)
+    try:
+        run_history.sort(key=lambda e: e.get("date"), reverse=True)
+    except Exception:
+        pass
+    # Write back to file
+    try:
+        with open(log_filename, "w", encoding="utf-8") as jf:
+            json.dump(run_history, jf, indent=2)
+    except Exception as exc:
+        print(f"Warning: Failed to write run log: {exc}", file=sys.stderr)
+
     return 0
 
 
