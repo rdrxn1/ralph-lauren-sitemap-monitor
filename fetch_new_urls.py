@@ -169,6 +169,11 @@ def main() -> int:
     # Load previously seen URLs from file
     archive_file = "all_urls.txt"
     previous_urls = load_previous_urls(archive_file)
+    # Compute which URLs are new compared to those previously seen. We track
+    # the set of previously seen URLs before updating it so that we can
+    # report how many URLs were already known (pre-existing) at the time of
+    # this run. This allows the front‑end to distinguish between the number
+    # of URLs that were already known and the total number after the run.
     new_urls_set = set(current_urls) - previous_urls
     new_urls = sorted(new_urls_set)
 
@@ -213,11 +218,17 @@ def main() -> int:
     # with indentation for readability.
     import json
     log_filename = "run_log.json"
+    # Determine how many URLs were already known before this run. This
+    # represents the pre‑existing URLs in the archive at the moment of
+    # execution. The number of new URLs plus the number of existing URLs
+    # should equal the total number of URLs discovered in this run.
+    existing_urls_count = len(previous_urls)
     run_entry = {
         "date": date_str,
         # Use ISO 8601 format with 'Z' to indicate UTC time
         "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "new_urls_count": len(new_urls),
+        "existing_urls_count": existing_urls_count,
         "total_urls_count": len(current_urls),
     }
     run_history = []
