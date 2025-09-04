@@ -3,7 +3,7 @@ name: Update Ralph Lauren sitemap URLs
 on:
   schedule:
     - cron: '30 7 * * *'
-         workflow_dispatch:
+           flow_dispatch:
 permissions:
   contents: write
 
